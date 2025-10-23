@@ -2,7 +2,9 @@ from src.Customer_Churn_Prediction.utils import read_csv_data
 from src.Customer_Churn_Prediction.logger import logging
 from src.Customer_Churn_Prediction.exception import CustomException
 import pandas as pd
-
+from src.Customer_Churn_Prediction.components.data_ingestion import DataIngestion,DataIngestionConfig
+from src.Customer_Churn_Prediction.components.data_transformation import DataTransformationConfig,DataTransformation
+from src.Customer_Churn_Prediction.components.model_tranier import ModelTrainer
 import os
 import sys
 from sklearn.model_selection import train_test_split
@@ -45,3 +47,24 @@ class DataIngestion:
 
         except Exception as e:
             raise CustomException(e,sys)
+        
+if __name__=="__main__":
+    logging.info("The execution has started")
+
+    try:
+        #data_ingestion_config=DataIngestionConfig()
+        data_ingestion=DataIngestion()
+        train_data_path,test_data_path=data_ingestion.initiate_data_ingestion()
+
+        #data_transformation_config=DataTransformationConfig()
+        data_transformation=DataTransformation()
+        train_arr,test_arr,_=data_transformation.initiate_data_transformation(train_data_path,test_data_path)
+
+        ## Model Training
+
+        model_trainer=ModelTrainer()
+        print(model_trainer.initiate_model_trainer(train_arr,test_arr))
+        
+    except Exception as e:
+        logging.info("Custom Exception")
+        raise CustomException(e,sys)
