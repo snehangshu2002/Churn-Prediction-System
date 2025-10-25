@@ -11,13 +11,13 @@ def read_csv_data():
     logging.info("Reading CSV file started")
     try:
         logging.info("Import Successful")
-        df=pd.read_csv(r"WA_Fn-UseC_-Telco-Customer-Churn.csv")
+        df = pd.read_csv(os.path.join("notebook", "data", "WA_Fn-UseC_-Telco-Customer-Churn.csv"))
         print(df.head())
 
         return df
 
     except Exception as ex:
-        raise CustomException(ex)
+        raise CustomException(ex,sys)
 def save_object(file_path, obj):
     try:
         dir_path = os.path.dirname(file_path)

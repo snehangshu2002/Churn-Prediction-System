@@ -17,7 +17,8 @@ from xgboost import XGBClassifier
 from src.Customer_Churn_Prediction.utils import save_object,evaluate_models
 from src.Customer_Churn_Prediction.logger import logging
 from src.Customer_Churn_Prediction.exception import CustomException
-
+import dagshub
+dagshub.init(repo_owner='snehangshu2002', repo_name='Churn-Prediction-System', mlflow=True)
 
 @dataclass
 class ModelTrainerConfig:
@@ -111,17 +112,17 @@ class ModelTrainer:
 
             model_names = list(params.keys())
 
-            actual_model = ""
+            actual_model =""
 
             for model in model_names:
                 if best_model_name == model:
-                    actual_model = actual_model
+                    actual_model = actual_model+model
 
             best_params = best_params_report[actual_model]
 
-            # MLflow tracking (update with your own MLflow server URL)
-            mlflow.set_registry_uri("https://dagshub.com/snehangshu2002/Churn-Prediction-System.mlflow")
-            tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
+            # # MLflow tracking (update with your own MLflow server URL)
+            # mlflow.set_registry_uri("https://dagshub.com/snehangshu2002/Churn-Prediction-System.mlflow")
+            # tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
 
             # mlflow
             with mlflow.start_run():
@@ -145,12 +146,12 @@ class ModelTrainer:
                 mlflow.log_metric("f1_score", f1)
                 mlflow.log_metric("roc_auc", roc_auc)
 
-                # Model registry does not work with file store
-                if tracking_url_type_store != "file":
-                    # Register the model
-                    mlflow.sklearn.log_model(best_model, "model", registered_model_name=actual_model)
-                else:
-                    mlflow.sklearn.log_model(best_model, "model")
+                # # Model registry does not work with file store
+                # if tracking_url_type_store != "file":
+                #     # Register the model
+                #     mlflow.sklearn.log_model(best_model, "model", registered_model_name=actual_model)
+                # else:
+                #     mlflow.sklearn.log_model(best_model, "model")
 
             if best_model_score < 0.7:  # Adjusted threshold for classification
                 raise CustomException("No best model found")
