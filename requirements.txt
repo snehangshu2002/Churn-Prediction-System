@@ -7,3 +7,6 @@ imblearn
 mlflow
 xgboost
 dagshub
+fastapi
+uvicorn
+pydantic

@@ -1,27 +1,130 @@
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, ConfigDict
+from src.Customer_Churn_Prediction.pipelines.prediction_pipeline import CustomData, PredictPipeline
 from src.Customer_Churn_Prediction.logger import logging
 from src.Customer_Churn_Prediction.exception import CustomException
+import uvicorn
 import sys
-from src.Customer_Churn_Prediction.components.data_ingestion import DataIngestion,DataIngestionConfig
-from src.Customer_Churn_Prediction.components.data_transformation import DataTransformationConfig,DataTransformation
+import os
 
-from Customer_Churn_Prediction.components.model_trainer import ModelTrainer
-if __name__=="__main__":
-    logging.info("The execution has started")
+# Initialize FastAPI app
+app = FastAPI(
+    title="Customer Churn Prediction API",
+    description="An API that predicts customer churn using machine learning",
+    version="1.0.0"
+)
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configure templates
+templates = Jinja2Templates(directory="templates")
+
+# Create Pydantic model for input data validation
+class ChurnPredictionInput(BaseModel):
+    gender: str
+    SeniorCitizen: int
+    Partner: str
+    Dependents: str
+    tenure: int
+    PhoneService: str
+    MultipleLines: str
+    InternetService: str
+    OnlineSecurity: str
+    OnlineBackup: str
+    DeviceProtection: str
+    TechSupport: str
+    StreamingTV: str
+    StreamingMovies: str
+    Contract: str
+    PaperlessBilling: str
+    PaymentMethod: str
+    MonthlyCharges: float
+    TotalCharges: float
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "gender": "Female",
+                "SeniorCitizen": 0,
+                "Partner": "Yes",
+                "Dependents": "No",
+                "tenure": 24,
+                "PhoneService": "Yes",
+                "MultipleLines": "No",
+                "InternetService": "DSL",
+                "OnlineSecurity": "Yes",
+                "OnlineBackup": "No",
+                "DeviceProtection": "Yes",
+                "TechSupport": "No",
+                "StreamingTV": "No",
+                "StreamingMovies": "No",
+                "Contract": "Month-to-month",
+                "PaperlessBilling": "Yes",
+                "PaymentMethod": "Electronic check",
+                "MonthlyCharges": 65.6,
+                "TotalCharges": 1572.4
+            }
+        }
+
+# Create root endpoint
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return FileResponse("templates/index.html")
+
+# Create prediction endpoint
+@app.post("/predict")
+async def predict_churn(data: ChurnPredictionInput):
     try:
-        #data_ingestion_config=DataIngestionConfig()
-        data_ingestion=DataIngestion()
-        train_data_path,test_data_path=data_ingestion.initiate_data_ingestion()
+        # Create CustomData instance
+        custom_data = CustomData(
+            gender=data.gender,
+            SeniorCitizen=data.SeniorCitizen,
+            Partner=data.Partner,
+            Dependents=data.Dependents,
+            tenure=data.tenure,
+            PhoneService=data.PhoneService,
+            MultipleLines=data.MultipleLines,
+            InternetService=data.InternetService,
+            OnlineSecurity=data.OnlineSecurity,
+            OnlineBackup=data.OnlineBackup,
+            DeviceProtection=data.DeviceProtection,
+            TechSupport=data.TechSupport,
+            StreamingTV=data.StreamingTV,
+            StreamingMovies=data.StreamingMovies,
+            Contract=data.Contract,
+            PaperlessBilling=data.PaperlessBilling,
+            PaymentMethod=data.PaymentMethod,
+            MonthlyCharges=data.MonthlyCharges,
+            TotalCharges=data.TotalCharges
+        )
 
-        #data_transformation_config=DataTransformationConfig()
-        data_transformation=DataTransformation()
-        train_arr,test_arr,_=data_transformation.initiate_data_transformation(train_data_path,test_data_path)
+        # Get prediction
+        pred_df = custom_data.get_data_as_data_frame()
+        predict_pipeline = PredictPipeline()
+        prediction = predict_pipeline.predict(pred_df)
 
-        ## Model Training
+        # Return prediction
+        churn_status = "Yes" if prediction[0] == 1 else "No"
+        return {
+            "churn_prediction": churn_status,
+            "probability": int(prediction[0]),
+            "message": f"The customer is {'likely' if prediction[0] == 1 else 'not likely'} to churn"
+        }
 
-        model_trainer=ModelTrainer()
-        print(model_trainer.initiate_model_trainer(train_arr,test_arr))
-        
     except Exception as e:
-        logging.info("Custom Exception")
-        raise CustomException(e,sys)
+        logging.error(f"Error during prediction: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
