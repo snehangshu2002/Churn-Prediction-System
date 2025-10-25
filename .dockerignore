@@ -54,3 +54,10 @@ mlruns/
 # Jupyter Notebook
 .ipynb_checkpoints
 notebook/data/
+
+__pycache__/
+*.pyc
+*.pyo
+.git
+.env
+.vscode
