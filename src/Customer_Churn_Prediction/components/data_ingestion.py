@@ -2,9 +2,8 @@ from src.Customer_Churn_Prediction.utils import read_csv_data
 from src.Customer_Churn_Prediction.logger import logging
 from src.Customer_Churn_Prediction.exception import CustomException
 import pandas as pd
-from src.Customer_Churn_Prediction.components.data_ingestion import DataIngestion,DataIngestionConfig
 from src.Customer_Churn_Prediction.components.data_transformation import DataTransformationConfig,DataTransformation
-from src.Customer_Churn_Prediction.components.model_tranier import ModelTrainer
+from src.Customer_Churn_Prediction.components.model_trainer import ModelTrainer
 import os
 import sys
 from sklearn.model_selection import train_test_split

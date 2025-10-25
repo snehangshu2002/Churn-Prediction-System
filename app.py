@@ -4,7 +4,7 @@ import sys
 from src.Customer_Churn_Prediction.components.data_ingestion import DataIngestion,DataIngestionConfig
 from src.Customer_Churn_Prediction.components.data_transformation import DataTransformationConfig,DataTransformation
 
-from src.Customer_Churn_Prediction.components.model_tranier import ModelTrainer
+from Customer_Churn_Prediction.components.model_trainer import ModelTrainer
 if __name__=="__main__":
     logging.info("The execution has started")
 
