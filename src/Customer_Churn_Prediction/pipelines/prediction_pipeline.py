@@ -12,9 +12,10 @@ class PredictPipeline:
 
     def predict(self, features):
         try:
-            # Get paths for the model and preprocessor
-            model_path = os.path.join("artifacts", "model.pkl")
-            preprocessor_path = os.path.join('artifacts', 'preprocessor.pkl')
+            # Get absolute paths for the model and preprocessor
+            base_dir = os.getcwd()  # /app inside Docker
+            model_path = os.path.join(base_dir, "artifacts", "model.pkl")
+            preprocessor_path = os.path.join(base_dir, "artifacts", "preprocessor.pkl")
 
             # Load the model and preprocessor
             model = load_object(file_path=model_path)
@@ -28,6 +29,7 @@ class PredictPipeline:
             return prediction
 
         except Exception as e:
+            # Wrap the exception in your custom exception class
             raise CustomException(e, sys)
 
 
