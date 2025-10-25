@@ -1,25 +1,31 @@
-# Use an official Python runtime as a parent image
+# Use Python 3.10 slim image as base
 FROM python:3.10-slim
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy the requirements file into the container
+# Copy requirements file
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at /app
+# Copy the entire project
 COPY . .
 
-# Make port 8000 available to the world outside this container
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Create necessary directories if they don't exist
+RUN mkdir -p artifacts templates
+
+# Make port 8000 available
 EXPOSE 8000
 
-# Create a non-root user
+# Create a non-root user for security
 RUN adduser --disabled-password --gecos '' app_user
 RUN chown -R app_user:app_user /app
 USER app_user
 
-# Run app.py when the container launches
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run the application
+CMD ["python", "app.py"]
