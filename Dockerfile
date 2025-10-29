@@ -19,7 +19,7 @@ ENV PYTHONUNBUFFERED=1
 # Create necessary directories if they don't exist
 RUN mkdir -p artifacts templates
 
-# Make port 8000 available
+# Expose port (informational)
 EXPOSE 8000
 
 # Create a non-root user for security
@@ -27,5 +27,5 @@ RUN adduser --disabled-password --gecos '' app_user
 RUN chown -R app_user:app_user /app
 USER app_user
 
-# Command to run the application
-CMD ["python", "app.py"]
+# Run FastAPI with uvicorn
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}"]
