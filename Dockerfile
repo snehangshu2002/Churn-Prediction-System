@@ -10,22 +10,14 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire project
+# Copy the entire project including artifacts
 COPY . .
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
+# Give permissions to the app folder BEFORE switching user
+RUN chown -R root:root /app
 
-# Create necessary directories if they don't exist
-RUN mkdir -p artifacts templates
-
-# Expose port (informational)
+# Expose port (Render will override)
 EXPOSE 8000
 
-# Create a non-root user for security
-RUN adduser --disabled-password --gecos '' app_user
-RUN chown -R app_user:app_user /app
-USER app_user
-
-# Run FastAPI with uvicorn
+# Run FastAPI
 CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}"]
