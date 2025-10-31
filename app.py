@@ -77,6 +77,11 @@ class ChurnPredictionInput(BaseModel):
             }
         }
 
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
 # Create root endpoint
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
