@@ -1,23 +1,22 @@
-# Use Python 3.10 slim image as base
-FROM python:3.10-slim
+# Use Python 3.10 base image
+FROM python:3.10
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements file
+# Copy requirements file and install dependencies
 COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy model files
+COPY artifacts/model.pkl artifacts/
+COPY artifacts/preprocessor.pkl artifacts/
 
-# Copy the entire project including artifacts
+# Copy remaining project files
 COPY . .
 
-# Give permissions to the app folder BEFORE switching user
-RUN chown -R root:root /app
-
-# Expose port (Render will override)
+# Expose port
 EXPOSE 8000
 
-# Run FastAPI
-CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Run the application
+CMD ["python", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
