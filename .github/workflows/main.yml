@@ -1,26 +1,36 @@
 name: Sync to Hugging Face hub
+
 on:
   push:
     branches: [main]
-
   workflow_dispatch:
 
 jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           lfs: true
 
+      - name: Set up Git LFS
+        run: |
+          git lfs install
+          git lfs pull
+
       - name: Configure git
         run: |
           git config user.email "github-actions@github.com"
           git config user.name "github-actions"
 
-      - name: Force push to hub
+      - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          # Push all LFS-tracked files first
+          git lfs push --all https://snehangshu270219:$HF_TOKEN@huggingface.co/spaces/snehangshu270219/Customer_Churn_prediction
+
+          # Then push the main branch forcefully to sync fully
           git push --force https://snehangshu270219:$HF_TOKEN@huggingface.co/spaces/snehangshu270219/Customer_Churn_prediction main
