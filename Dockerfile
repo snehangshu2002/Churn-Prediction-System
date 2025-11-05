@@ -4,13 +4,11 @@ FROM python:3.10
 # Set working directory
 WORKDIR /app
 
-# Copy requirements file and install dependencies
+# Copy requirements first (for Docker caching)
 COPY requirements.txt .
-RUN pip install -r requirements.txt
 
-# Copy model files
-COPY artifacts/model.pkl artifacts/
-COPY artifacts/preprocessor.pkl artifacts/
+# install dependencies
+RUN pip install -r requirements.txt
 
 # Copy remaining project files
 COPY . .
@@ -19,4 +17,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application
-CMD ["python", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
