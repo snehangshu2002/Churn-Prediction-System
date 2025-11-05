@@ -132,3 +132,6 @@ async def predict_churn(data: ChurnPredictionInput):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# Entry point
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
