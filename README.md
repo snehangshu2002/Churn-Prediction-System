@@ -1,4 +1,15 @@
 
+---
+title: Customer Churn Prediction
+emoji: 📉
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.38.0
+app_file: app.py
+pinned: false
+---
+
 # Customer Churn Prediction
 
 This project provides a complete system to predict customer churn using a Telco dataset. It includes tools for data exploration, reusable code for data processing and model training, a prediction system, and deployment support using FastAPI and Docker.
