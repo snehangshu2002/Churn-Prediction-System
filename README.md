@@ -31,7 +31,7 @@ Follow these steps to run the project locally:
 
 3. **Run the pipeline** (data loading, processing, training):
    ```powershell
-   python src\Customer_Churn_Prediction\components\data_ingestion.py
+   python -m  src\Customer_Churn_Prediction\components\data_ingestion.py
    ```
    This generates:
    - `artifacts/raw.csv`: Raw dataset
